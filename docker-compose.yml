@@ -5,5 +5,7 @@ services:
       dockerfile: Dockerfile.dev
       context: ./chat-backend
     volumes:
-      - /app/node_modules
+      - /chat-backend/node_modules
       - ./chat-backend:/app
+    ports:
+      - 3000:3000
