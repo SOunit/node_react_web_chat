@@ -7,5 +7,9 @@ services:
     volumes:
       - /chat-backend/node_modules
       - ./chat-backend:/app
+  nginx:
+    build:
+      dockerfile: Dockerfile.dev
+      context: ./nginx
     ports:
-      - 3000:3000
+      - 80:80
