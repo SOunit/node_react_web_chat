@@ -1,5 +1,8 @@
 'use strict';
 
+// FIXME: bcyprt error in docker
+// const bcrypt = require('bcrypt');
+
 module.exports = {
   up: async (queryInterface, Sequelize) => {
     /**
@@ -19,6 +22,7 @@ module.exports = {
           firstName: 'John',
           lastName: 'Doe',
           email: 'john.doe@gmail.com',
+          // password: bcrypt.hashSync('secret', 10),
           password: 'secret',
           gender: 'male',
         },
@@ -26,6 +30,7 @@ module.exports = {
           firstName: 'Sam',
           lastName: 'Smith',
           email: 'Sam.Smith@gmail.com',
+          // password: bcrypt.hashSync('secret', 10),
           password: 'secret',
           gender: 'male',
         },
@@ -33,6 +38,7 @@ module.exports = {
           firstName: 'Jane',
           lastName: 'Doe',
           email: 'Jane.doe@gmail.com',
+          // password: bcrypt.hashSync('secret', 10),
           password: 'secret',
           gender: 'female',
         },
