@@ -1,16 +1,10 @@
 const express = require('express');
+const config = require('./config/app');
+const router = require('./router/index');
 
 const app = express();
 
-const config = require('./config/app');
-
-app.get('/home', (req, res) => {
-  return res.send('home page');
-});
-
-app.get('/login', (req, res) => {
-  return res.send('login page');
-});
+app.use(router);
 
 const port = config.appPort;
 
