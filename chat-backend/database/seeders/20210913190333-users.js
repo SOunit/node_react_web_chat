@@ -1,6 +1,5 @@
 'use strict';
 
-// FIXME: bcyprt error in docker
 const bcrypt = require('bcrypt');
 
 module.exports = {
