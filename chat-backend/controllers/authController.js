@@ -1,6 +1,7 @@
 const User = require('../models').User;
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const config = require('../config/app');
 
 exports.login = async (req, res) => {
   const { email, password } = req.body;
@@ -32,7 +33,15 @@ exports.login = async (req, res) => {
 };
 
 exports.register = async (req, res) => {
-  const { email, password } = req.body;
+  try {
+    const user = await User.create(req.body);
+
+    // generate auth token
+    const userWithToken = generateToken(user.get({ row: true }));
+    return res.send(userWithToken);
+  } catch (e) {
+    return res.status(500).send({ message: e.message });
+  }
 };
 
 const generateToken = (user) => {
@@ -41,7 +50,7 @@ const generateToken = (user) => {
   delete user.password;
   console.log('generateToken delete', user);
 
-  const token = jwt.sign(user, 'secret', {
+  const token = jwt.sign(user, config.appKey, {
     // 86400 is 1 week
     expiresIn: 86400,
   });
