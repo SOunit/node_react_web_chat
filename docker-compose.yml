@@ -1,0 +1,9 @@
+version: '3'
+services:
+  chat-backend:
+    build:
+      dockerfile: Dockerfile.dev
+      context: ./chat-backend
+    volumes:
+      - /app/node_modules
+      - ./chat-backend:/app
