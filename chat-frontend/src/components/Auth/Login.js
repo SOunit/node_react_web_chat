@@ -1,5 +1,7 @@
 import LoginImage from '../../assets/images/login.svg';
 
+import './Auth.scss';
+
 const Login = () => {
   return (
     <div>
