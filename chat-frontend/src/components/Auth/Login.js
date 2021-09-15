@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import axios from 'axios';
 import { Link } from 'react-router-dom';
 import loginImage from '../../assets/images/login.svg';
+import AuthService from '../../services/authServices';
 
 import './Auth.scss';
 
@@ -12,14 +12,7 @@ const Login = () => {
   const submitForm = (e) => {
     e.preventDefault();
 
-    axios
-      .post(`/chat-backend/login`, { email, password })
-      .then((res) => {
-        console.log(res);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+    AuthService.login({ email, password }).then((res) => console.log(res));
 
     console.log({ email, password });
   };
