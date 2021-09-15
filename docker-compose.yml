@@ -11,8 +11,8 @@ services:
       dockerfile: Dockerfile.dev
       context: ./chat-backend
     volumes:
-      - /app/node_modules
       - ./chat-backend:/app
+      - /app/node_modules
   nginx:
     build:
       dockerfile: Dockerfile.dev
