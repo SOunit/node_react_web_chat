@@ -12,9 +12,12 @@ const Navbar = () => {
   return (
     <div id='navbar'>
       <h2>Chat.io</h2>
-      <div id='profile-menu'>
+      <div
+        onClick={() => setShowProfileOptions((prevState) => !prevState)}
+        id='profile-menu'
+      >
         <img width='40px' height='40px' src={user.avatar} alt='Avatar' />
-        <p onClick={() => setShowProfileOptions((prevState) => !prevState)}>
+        <p>
           {user.firstName} {user.lastName}
         </p>
         <FontAwesomeIcon icon='caret-down' className='fa-icon' />
