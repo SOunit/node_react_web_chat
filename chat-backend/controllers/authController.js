@@ -26,6 +26,8 @@ exports.login = async (req, res) => {
 
     // generate auth token
     const userWithToken = generateToken(user.get({ row: true }));
+    userWithToken.avatar = user.avatar;
+
     return res.send(userWithToken);
   } catch (e) {
     return res.status(500).send({ message: e.message });
