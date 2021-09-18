@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, Fragment } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { logout } from '../../../store/actions/auth';
+import Modal from '../../Modal/Modal';
 import './Navbar.scss';
 
 const Navbar = () => {
@@ -21,6 +22,7 @@ const Navbar = () => {
           {user.firstName} {user.lastName}
         </p>
         <FontAwesomeIcon icon='caret-down' className='fa-icon' />
+
         {showProfileOptions && (
           <div id='profile-options'>
             <p>Update profile</p>
@@ -33,6 +35,14 @@ const Navbar = () => {
             </p>
           </div>
         )}
+
+        {
+          <Modal>
+            <Fragment key='header'>Modal Header 1</Fragment>
+            <Fragment key='body'>Modal Body 2</Fragment>
+            <Fragment key='footer'>Modal Footer 3</Fragment>
+          </Modal>
+        }
       </div>
     </div>
   );
