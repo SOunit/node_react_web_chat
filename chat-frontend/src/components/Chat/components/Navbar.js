@@ -9,6 +9,7 @@ const Navbar = () => {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.authReducer.user);
   const [showProfileOptions, setShowProfileOptions] = useState(false);
+  const [showProfileModal, setShowProfileModal] = useState(false);
 
   return (
     <div id='navbar'>
@@ -25,7 +26,13 @@ const Navbar = () => {
 
         {showProfileOptions && (
           <div id='profile-options'>
-            <p>Update profile</p>
+            <p
+              onClick={() => {
+                setShowProfileModal(true);
+              }}
+            >
+              Update profile
+            </p>
             <p
               onClick={() => {
                 dispatch(logout());
@@ -36,13 +43,13 @@ const Navbar = () => {
           </div>
         )}
 
-        {
-          <Modal>
+        {showProfileModal && (
+          <Modal click={() => setShowProfileModal(false)}>
             <Fragment key='header'>Modal Header 1</Fragment>
             <Fragment key='body'>Modal Body 2</Fragment>
             <Fragment key='footer'>Modal Footer 3</Fragment>
           </Modal>
-        }
+        )}
       </div>
     </div>
   );
