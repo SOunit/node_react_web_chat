@@ -1,8 +1,5 @@
 import AuthService from '../../services/authServices';
-export const LOGIN = 'LOGIN';
-export const REGISTER = 'REGISTER';
-export const LOGOUT = 'LOGOUT';
-export const UPDATE_PROFILE = 'UPDATE_PROFILE';
+import { LOGIN, LOGOUT, UPDATE_PROFILE } from '../types';
 
 export const login = (params, history) => (dispatch) => {
   return AuthService.login(params)

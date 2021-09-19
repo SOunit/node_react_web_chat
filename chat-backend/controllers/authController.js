@@ -55,6 +55,8 @@ const generateToken = (user) => {
   const token = jwt.sign(user, config.appKey, {
     // 86400 is 1 week
     expiresIn: 86400,
+    // to check auto logout by axios interceptor
+    // expiresIn: 5,
   });
 
   console.log(token);
