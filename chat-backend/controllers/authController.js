@@ -26,6 +26,8 @@ exports.login = async (req, res) => {
 
     // generate auth token
     const userWithToken = generateToken(user.get({ row: true }));
+    userWithToken.user.avatar = user.avatar;
+
     return res.send(userWithToken);
   } catch (e) {
     return res.status(500).send({ message: e.message });
@@ -53,9 +55,11 @@ const generateToken = (user) => {
   const token = jwt.sign(user, config.appKey, {
     // 86400 is 1 week
     expiresIn: 86400,
+    // to check auto logout by axios interceptor
+    // expiresIn: 5,
   });
 
   console.log(token);
 
-  return { ...user, ...{ token } };
+  return { ...{ user }, ...{ token } };
 };

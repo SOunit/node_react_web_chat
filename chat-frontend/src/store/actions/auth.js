@@ -1,6 +1,5 @@
 import AuthService from '../../services/authServices';
-export const LOGIN = 'LOGIN';
-export const REGISTER = 'REGISTER';
+import { LOGIN, LOGOUT, UPDATE_PROFILE } from '../types';
 
 export const login = (params, history) => (dispatch) => {
   return AuthService.login(params)
@@ -26,6 +25,24 @@ export const register = (params, history) => (dispatch) => {
         payload: data,
       });
       history.push('/');
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+};
+
+export const logout = () => (dispatch) => {
+  AuthService.logout();
+  dispatch({ type: LOGOUT });
+};
+
+export const updateProfile = (params) => (dispatch) => {
+  return AuthService.updateProfile(params)
+    .then((data) => {
+      dispatch({
+        type: UPDATE_PROFILE,
+        payload: data,
+      });
     })
     .catch((err) => {
       console.log(err);

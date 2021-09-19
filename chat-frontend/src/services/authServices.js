@@ -4,7 +4,7 @@ const AuthService = {
   login: (data) => {
     return API.post('/login', data)
       .then(({ data }) => {
-        API.defaults.headers['Authorization'] = `Bearer ${data.token}`;
+        setHeadersAndStrage(data);
         return data;
       })
       .catch((err) => {
@@ -12,10 +12,11 @@ const AuthService = {
         throw err;
       });
   },
+
   register: (data) => {
     return API.post('/register', data)
       .then(({ data }) => {
-        API.defaults.headers['Authorization'] = `Bearer ${data.token}`;
+        setHeadersAndStrage(data);
         return data;
       })
       .catch((err) => {
@@ -23,7 +24,34 @@ const AuthService = {
         throw err;
       });
   },
-  logout: () => {},
+
+  logout: () => {
+    API.defaults.headers['Authorization'] = '';
+    localStorage.removeItem('user');
+    localStorage.removeItem('token');
+  },
+
+  updateProfile: (data) => {
+    const headers = {
+      headers: { 'Content-type': 'application/x-www-form-urlencoded' },
+    };
+
+    return API.post('/users/update', data, headers)
+      .then(({ data }) => {
+        localStorage.setItem('user', JSON.stringify(data));
+        return data;
+      })
+      .catch((err) => {
+        console.log('Auth service error', err);
+        throw err;
+      });
+  },
+};
+
+const setHeadersAndStrage = ({ user, token }) => {
+  API.defaults.headers['Authorization'] = `Bearer ${token}`;
+  localStorage.setItem('user', JSON.stringify(user));
+  localStorage.setItem('token', token);
 };
 
 export default AuthService;

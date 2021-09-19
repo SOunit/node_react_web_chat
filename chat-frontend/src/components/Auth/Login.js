@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import loginImage from '../../assets/images/login.svg';
-import AuthService from '../../services/authServices';
 import { useDispatch } from 'react-redux';
 import { login } from '../../store/actions/auth';
 
