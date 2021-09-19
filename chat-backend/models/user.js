@@ -25,10 +25,14 @@ module.exports = (sequelize, DataTypes) => {
         get() {
           const avatar = this.getDataValue('avatar');
           const url = `/chat-backend`;
+
           if (!avatar) {
             const imageUrl = `${url}/${this.getDataValue('gender')}.svg`;
             return imageUrl;
           }
+
+          const id = this.getDataValue('id');
+          return `${url}/user/${id}/${avatar}`;
         },
       },
     },

@@ -2,13 +2,13 @@ const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
 
-exports.userFile = (req, res, next) => {
+exports.useFile = ((req, res, next) => {
   const getFileType = (file) => {
-    const mimeType = file.mimeType.split('/');
+    const mimeType = file.mimetype.split('/');
     return mimeType[mimeType.length - 1];
   };
 
-  const generateFileName = (req, res, next) => {
+  const generateFileName = (req, file, cb) => {
     const extention = getFileType(file);
 
     const fileName = `${Date.now()}_${Math.random() * 1e9}.${extention}`;
@@ -32,7 +32,7 @@ exports.userFile = (req, res, next) => {
 
   const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-      const { id } = req.body;
+      const { id } = req.user;
       const dest = `uploads/user/${id}`;
 
       // check path exists
@@ -68,4 +68,4 @@ exports.userFile = (req, res, next) => {
   });
 
   return multer({ storage, fileFilter }).single('avatar');
-};
+})();
