@@ -12,6 +12,7 @@ const AuthService = {
         throw err;
       });
   },
+
   register: (data) => {
     return API.post('/register', data)
       .then(({ data }) => {
@@ -23,10 +24,27 @@ const AuthService = {
         throw err;
       });
   },
+
   logout: () => {
     API.defaults.headers['Authorization'] = '';
     localStorage.removeItem('user');
     localStorage.removeItem('token');
+  },
+
+  updateProfile: (data) => {
+    const headers = {
+      headers: { 'Content-type': 'application/x-www-form-urlencoded' },
+    };
+
+    return API.post('/users/update', data, headers)
+      .then(({ data }) => {
+        localStorage.setItem('user', JSON.stringify(data));
+        return data;
+      })
+      .catch((err) => {
+        console.log('Auth service error', err);
+        throw err;
+      });
   },
 };
 

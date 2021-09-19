@@ -1,7 +1,7 @@
 import { useState, Fragment } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { logout } from '../../../store/actions/auth';
+import { logout, updateProfile } from '../../../store/actions/auth';
 import Modal from '../../Modal/Modal';
 import './Navbar.scss';
 
@@ -21,13 +21,18 @@ const Navbar = () => {
   const submitForm = (e) => {
     e.preventDefault();
 
-    const form = { firstName, lastName, email, gender, password, avatar };
+    const form = { firstName, lastName, email, gender, avatar };
+    if (password.length > 0) {
+      form.password = password;
+    }
 
     const formData = new FormData();
 
     for (const key in form) {
-      formData.push(key, form[key]);
+      formData.append(key, form[key]);
     }
+
+    dispatch(updateProfile(formData)).then(() => setShowProfileModal(false));
   };
 
   return (
@@ -124,7 +129,9 @@ const Navbar = () => {
               </form>
             </Fragment>
             <Fragment key='footer'>
-              <button className='btn-success'>UPDATE</button>
+              <button className='btn-success' onClick={submitForm}>
+                UPDATE
+              </button>
             </Fragment>
           </Modal>
         )}
