@@ -12,7 +12,7 @@ exports.useFile = ((req, res, next) => {
     const extention = getFileType(file);
 
     const fileName = `${Date.now()}_${Math.random() * 1e9}.${extention}`;
-    cb(null, `${file.fileName}_${fileName}`);
+    cb(null, `${file.fieldname}_${fileName}`);
   };
 
   const fileFilter = (req, file, cb) => {

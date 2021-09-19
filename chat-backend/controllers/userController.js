@@ -2,6 +2,11 @@ const User = require('../models').User;
 const sequelize = require('sequelize');
 
 exports.update = async (req, res) => {
+  if (req.file) {
+    // req.file.avatart come from multer
+    req.body.avatar = req.file.filename;
+  }
+
   try {
     const [rows, result] = await User.update(req.body, {
       where: { id: req.user.id },
