@@ -1,7 +1,9 @@
 import { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import Navbar from './components/Navbar';
 import { fetchChats } from '../../store/actions/chat';
+import Navbar from './components/Navbar';
+import FriendList from '../FriendList/FriendList';
+import Messenger from '../Messenger/Messenger';
 import './Chat.scss';
 
 const Chat = () => {
@@ -17,7 +19,10 @@ const Chat = () => {
   return (
     <div id='chat-container' className='card-shadow'>
       <Navbar />
-      <div id='chat-wrap'>Data</div>
+      <div id='chat-wrap'>
+        <FriendList />
+        <Messenger />
+      </div>
     </div>
   );
 };
