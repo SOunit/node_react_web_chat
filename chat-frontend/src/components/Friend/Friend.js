@@ -1,12 +1,12 @@
-import './Friend.scss';
 import { useSelector } from 'react-redux';
 import { userStatus } from '../../utils/helpers';
+import './Friend.scss';
 
-const Friend = ({ chat }) => {
+const Friend = ({ chat, click }) => {
   const currentChat = useSelector((state) => state.chatReducer.currentChat);
 
   const isChatOpen = () => {
-    return currentChat.id === chat.id ? 'open' : '';
+    return currentChat.id === chat.id ? 'opened' : '';
   };
 
   const lastMessage = () => {
@@ -19,7 +19,7 @@ const Friend = ({ chat }) => {
   };
 
   return (
-    <div className={`friend-list ${isChatOpen()}`}>
+    <div onClick={click} className={`friend-list ${isChatOpen()}`}>
       <div>
         <img
           width='40'
