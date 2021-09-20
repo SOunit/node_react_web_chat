@@ -20,7 +20,7 @@ exports.index = async (req, res) => {
     ],
   });
 
-  return res.send(user.Chats);
+  return res.json(user.Chats);
 };
 
 exports.create = async (req, res) => {
@@ -79,9 +79,42 @@ exports.create = async (req, res) => {
       ],
     });
 
-    return res.send(chatNew);
+    return res.json(chatNew);
   } catch (err) {
     await transaction.rollback();
     return res.status(500).json({ status: 'Error', message: err.message });
   }
+};
+
+exports.messages = async (req, res) => {
+  console.log('chatController messages');
+
+  const limit = 10;
+  const page = req.query.page || 1;
+  const offset = page > 1 ? page + limit : 0;
+
+  const messages = await Message.findAndCountAll({
+    where: { chatId: req.query.id },
+    limit,
+    offset,
+  });
+
+  // 100 messages
+  // 10 limit
+  // 10 totalPages
+  const totalPages = Math.ceil(messages.count / limit);
+
+  if (page > totalPages) {
+    return res.json({ data: { messages: [] } });
+  }
+
+  const result = {
+    messages: messages.rows,
+    pagination: {
+      page,
+      totalPages,
+    },
+  };
+
+  return res.json({ data: result });
 };
