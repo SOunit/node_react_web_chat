@@ -1,7 +1,13 @@
 import './Friend.scss';
 
-const Friend = () => {
-  return <h1>Friend</h1>;
+const Friend = ({ chat }) => {
+  return (
+    <div>
+      <p>
+        {chat.Users[0].firstName} {chat.Users[0].lastName}
+      </p>
+    </div>
+  );
 };
 
 export default Friend;
