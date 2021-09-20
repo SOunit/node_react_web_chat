@@ -1,10 +1,9 @@
-import AuthService from '../../services/authServices';
+import AuthService from '../../services/authService';
 import { LOGIN, LOGOUT, UPDATE_PROFILE } from '../types';
 
 export const login = (params, history) => (dispatch) => {
   return AuthService.login(params)
     .then((data) => {
-      console.log(data);
       dispatch({
         type: LOGIN,
         payload: data,
@@ -19,7 +18,6 @@ export const login = (params, history) => (dispatch) => {
 export const register = (params, history) => (dispatch) => {
   return AuthService.register(params)
     .then((data) => {
-      console.log(data);
       dispatch({
         type: LOGIN,
         payload: data,
