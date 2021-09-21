@@ -9,3 +9,5 @@ const socketServer = (server) => {
     });
   });
 };
+
+module.exports = socketServer;
