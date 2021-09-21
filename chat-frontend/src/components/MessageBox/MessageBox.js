@@ -1,3 +1,4 @@
+import Message from '../Message/Message';
 import './MessageBox.scss';
 
 const MessengeBox = () => {
