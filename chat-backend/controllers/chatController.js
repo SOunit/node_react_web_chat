@@ -125,6 +125,13 @@ exports.messages = async (req, res) => {
   return res.json({ data: result });
 };
 
+exports.imageUpload = async (req, res) => {
+  if (req.file) {
+    return res.json({ url: req.file.filename });
+  }
+  return res.status(500).json('No image uploaded');
+};
+
 exports.deleteChat = async (req, res) => {
   try {
     await Chat.destroy({ where: { id: req.params.id } });
