@@ -5,6 +5,7 @@ import {
   onlineFriends,
   onlineFriend,
   offlineFriend,
+  setSocket,
 } from '../../../store/actions/chat';
 
 function useSocket(user, dispatch) {
@@ -12,6 +13,8 @@ function useSocket(user, dispatch) {
     dispatch(fetchChats())
       .then((res) => {
         console.log(res);
+
+        dispatch(setSocket(socket));
 
         // this connection doesn't work...
         // const socket = socketIOClient.connect(`/socket.io`);

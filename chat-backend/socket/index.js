@@ -1,8 +1,12 @@
 const socketIo = require('socket.io');
 const { sequelize } = require('../models');
+const Message = require('../models').Message;
 
 // user anyone who login to chat
+// key = user id, value = sockets?
+// 1 => {}
 const users = new Map();
+// key = xxx, value = yyy
 const userSockets = new Map();
 
 const socketServer = (server) => {
@@ -63,6 +67,49 @@ const socketServer = (server) => {
       // console.log(`New user joined: ${user.firstName}`);
       // return response back to front
       // io.to(socket.id).emit('typing', 'User typing...');
+    });
+
+    socket.on('message', async (message) => {
+      console.log('on message --------');
+      console.log('message', message);
+      console.log('users', users);
+      console.log('userSockets', userSockets);
+      let sockets = [];
+
+      if (users.has(message.fromUser.id)) {
+        sockets = users.get(message.fromUser.id).sockets;
+      }
+
+      // message.toUserId = all users to send message?
+      // sockets = active users?
+      message.toUserId.forEach((id) => {
+        // why this check?
+        if (users.has(id)) {
+          sockets = [...sockets, ...users.get(id).sockets];
+        }
+      });
+
+      try {
+        const msg = {
+          type: message.type,
+          fromUserId: message.fromUser.id,
+          chatId: message.chatId,
+          message: message.message,
+        };
+
+        // create db data
+        await Message.create(msg);
+
+        // change data as frontend expect
+        message.User = message.fromUser;
+        message.fromUserId = message.fromUser.id;
+        delete message.fromUser;
+
+        // send message to all sockets
+        sockets.forEach((socket) => {
+          io.to(socket).emit('received', message);
+        });
+      } catch (err) {}
     });
 
     socket.on('disconnect', async () => {

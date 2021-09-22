@@ -4,6 +4,7 @@ import {
   FRIENDS_ONLINE,
   FRIEND_ONLINE,
   FRIEND_OFFLINE,
+  SET_SOCKET,
 } from '../actions/chat';
 
 const initialState = {
@@ -107,6 +108,13 @@ const chatReducer = (state = initialState, action) => {
         ...state,
         chats: chatsCopy,
         currentChat: currentChatCopy,
+      };
+    }
+
+    case SET_SOCKET: {
+      return {
+        ...state,
+        socket: payload,
       };
     }
 

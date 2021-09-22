@@ -5,6 +5,7 @@ import './MessageInput.scss';
 
 const MessengeInput = ({ chat }) => {
   const user = useSelector((state) => state.authReducer.user);
+  const socket = useSelector((state) => state.chatReducer.socket);
 
   const [message, setMessage] = useState('');
   const [image, setImage] = useState('');
@@ -29,7 +30,7 @@ const MessengeInput = ({ chat }) => {
 
     const msg = {
       type: imageUpload ? 'image' : 'text',
-      fromUserId: user.id,
+      fromUser: user,
       toUserId: chat.Users.map((user) => user.id),
       chat: chat.id,
       message: imageUpload ? image : message,
@@ -39,6 +40,7 @@ const MessengeInput = ({ chat }) => {
     setImage('');
 
     // send message with socket
+    socket.emit('message', msg);
   };
 
   return (
