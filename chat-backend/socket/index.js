@@ -98,11 +98,12 @@ const socketServer = (server) => {
         };
 
         // create db data
-        await Message.create(msg);
+        const savedMessage = await Message.create(msg);
 
         // change data as frontend expect
         message.User = message.fromUser;
         message.fromUserId = message.fromUser.id;
+        message.id = savedMessage.id;
         delete message.fromUser;
 
         // send message to all sockets
