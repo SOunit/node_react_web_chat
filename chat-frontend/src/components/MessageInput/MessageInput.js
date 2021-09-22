@@ -32,7 +32,7 @@ const MessengeInput = ({ chat }) => {
       type: imageUpload ? 'image' : 'text',
       fromUser: user,
       toUserId: chat.Users.map((user) => user.id),
-      chat: chat.id,
+      chatId: chat.id,
       message: imageUpload ? image : message,
     };
 

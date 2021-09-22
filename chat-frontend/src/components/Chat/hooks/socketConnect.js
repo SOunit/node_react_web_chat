@@ -6,6 +6,7 @@ import {
   onlineFriend,
   offlineFriend,
   setSocket,
+  receivedMessage,
 } from '../../../store/actions/chat';
 
 function useSocket(user, dispatch) {
@@ -14,13 +15,13 @@ function useSocket(user, dispatch) {
       .then((res) => {
         console.log(res);
 
-        dispatch(setSocket(socket));
-
         // this connection doesn't work...
         // const socket = socketIOClient.connect(`/socket.io`);
 
         // this connection worked!
         const socket = socketIOClient({ path: '/socket.io' });
+        dispatch(setSocket(socket));
+
         socket.emit('join', user);
 
         // listen to socket for backend sending socket
@@ -41,6 +42,10 @@ function useSocket(user, dispatch) {
         socket.on('offline', (user) => {
           console.log('Offline', user);
           dispatch(offlineFriend(user));
+        });
+
+        socket.on('received', (message) => {
+          dispatch(receivedMessage(message, user.id));
         });
       })
       .catch((err) => console.log(err));
