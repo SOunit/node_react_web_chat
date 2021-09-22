@@ -1,6 +1,7 @@
 const socketIo = require('socket.io');
 const { sequelize } = require('../models');
 
+// user anyone who login to chat
 const users = new Map();
 const userSockets = new Map();
 
@@ -9,9 +10,11 @@ const socketServer = (server) => {
 
   io.on('connection', (socket) => {
     socket.on('join', async (user) => {
+      console.log('socket.on join');
       let sockets = [];
 
       if (users.has(user.id)) {
+        console.log('socket.on join update');
         // update
         const existingUser = users.get(user.id);
         existingUser.sockets = [...existingUser.sockets, ...[socket.id]];
@@ -19,11 +22,15 @@ const socketServer = (server) => {
         sockets = [...existingUser.sockets, ...[socket.id]];
         userSockets.set(socket.id, user.id);
       } else {
+        console.log('socket.on join create');
         // create
         users.set(user.id, { id: user.id, sockets: [socket.id] });
         sockets.push(socket.id);
         userSockets.set(socket.id, user.id);
       }
+
+      console.log('socket.on join users', users);
+      console.log('socket.on join userSockets', userSockets);
 
       // ids
       const onlineFriends = [];
@@ -35,8 +42,8 @@ const socketServer = (server) => {
       // notify his friends that user is now online
       for (let i = 0; i < chatters.length; i++) {
         if (users.has(chatters[i])) {
-          const chatter = users.get(chatter[i]);
-          chatters.sockets.forEach((socket) => {
+          const chatter = users.get(chatters[i]);
+          chatter.sockets.forEach((socket) => {
             try {
               io.to(socket).emit('online', user);
             } catch (err) {}
@@ -45,8 +52,9 @@ const socketServer = (server) => {
         }
       }
 
+      console.log('sockets for emit friends', sockets);
       // send to user sockets which of his friends are online
-      sockets.forEach(() => {
+      sockets.forEach((socket) => {
         try {
           io.to(socket).emit('friends', onlineFriends);
         } catch (err) {}
@@ -58,6 +66,8 @@ const socketServer = (server) => {
     });
 
     socket.on('disconnect', async () => {
+      console.log('socket.on disconnect');
+
       if (userSockets.has(socket.id)) {
         const user = users.get(userSockets.get(socket.id));
         if (user.sockets.length > 1) {
@@ -76,7 +86,7 @@ const socketServer = (server) => {
           // notify his friends that user is now offline
           for (let i = 0; i < chatters.length; i++) {
             if (users.has(chatters[i])) {
-              users.get(chatter[i]).sockets.forEach((socket) => {
+              users.get(chatters[i]).sockets.forEach((socket) => {
                 try {
                   io.to(socket).emit('offline', user);
                 } catch (err) {}

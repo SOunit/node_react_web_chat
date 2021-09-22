@@ -1,9 +1,12 @@
 import { LOGIN, LOGOUT, REGISTER, UPDATE_PROFILE } from '../types';
 
 const initialState = {
-  user: JSON.parse(localStorage.getItem('user')) || {},
-  token: localStorage.getItem('token') || '',
-  isLoggedIn: !!JSON.parse(localStorage.getItem('user')),
+  // user: JSON.parse(localStorage.getItem('user')) || {},
+  // token: localStorage.getItem('token') || '',
+  // isLoggedIn: !!JSON.parse(localStorage.getItem('user')),
+  user: {},
+  token: '',
+  isLoggedIn: false,
 };
 
 const authReducer = (state = initialState, action) => {
