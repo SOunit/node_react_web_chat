@@ -1,4 +1,5 @@
 const socketIo = require('socket.io');
+const { sequelize } = require('../models');
 
 const users = new Map();
 
@@ -25,7 +26,8 @@ const socketServer = (server) => {
       const onlineFriends = [];
 
       // query
-      const chatters = [];
+      const chatters = await getChatters(user.id);
+      console.log(chatters);
 
       // notify his friends that user is now online
       for (let i = 0; i < chatters.length; i++) {
@@ -52,6 +54,49 @@ const socketServer = (server) => {
       // io.to(socket.id).emit('typing', 'User typing...');
     });
   });
+};
+
+const getChatters = async (userId) => {
+  try {
+    const [results, metadata] = await sequelize.query(`
+      SELECT
+        "cu"."userId"
+      FROM
+        "ChatUsers" as cu
+      INNER JOIN
+        (
+          SELECT
+            "c"."id"
+          FROM
+            "Chats" as c
+          WHERE
+            exists
+            (
+              SELECT
+                "u"."id"
+              FROM
+                "Users" as u
+              INNER JOIN
+                "ChatUsers"
+              ON
+                "u"."id" = "ChatUsers"."userId"
+              WHERE
+                u.id = ${parseInt(userId)}
+              AND
+                c.id = "ChatUsers"."chatId"
+            )
+        ) as cjoin
+      ON
+        cjoin.id = "cu"."chatId"
+      WHERE
+        "cu"."userId" != ${parseInt(userId)}
+    `);
+
+    return results.length > 0 ? results.map((elm) => elm.userId) : [];
+  } catch (err) {
+    console.log(err);
+    return [];
+  }
 };
 
 module.exports = socketServer;
