@@ -2,6 +2,7 @@ const socketIo = require('socket.io');
 const { sequelize } = require('../models');
 
 const users = new Map();
+const userSockets = new Map();
 
 const socketServer = (server) => {
   const io = socketIo(server);
@@ -16,10 +17,12 @@ const socketServer = (server) => {
         existingUser.sockets = [...existingUser.sockets, ...[socket.id]];
         users.set(user.id, existingUser);
         sockets = [...existingUser.sockets, ...[socket.id]];
+        userSockets.set(socket.id, user.id);
       } else {
         // create
         users.set(user.id, { id: user.id, sockets: [socket.id] });
         sockets.push(socket.id);
+        userSockets.set(socket.id, user.id);
       }
 
       // ids
@@ -52,6 +55,38 @@ const socketServer = (server) => {
       // console.log(`New user joined: ${user.firstName}`);
       // return response back to front
       // io.to(socket.id).emit('typing', 'User typing...');
+    });
+
+    socket.on('disconnect', async () => {
+      if (userSockets.has(socket.id)) {
+        const user = users.get(userSockets.get(socket.id));
+        if (user.sockets.length > 1) {
+          user.sockets = user.sockets.filter((sock) => {
+            if (sock !== socket.id) {
+              return true;
+            }
+            userSockets.delete(sock);
+            return false;
+          });
+
+          users.set(user.id, user);
+        } else {
+          const chatters = await getChatters(user.id);
+
+          // notify his friends that user is now offline
+          for (let i = 0; i < chatters.length; i++) {
+            if (users.has(chatters[i])) {
+              users.get(chatter[i]).sockets.forEach((socket) => {
+                try {
+                  io.to(socket).emit('offline', user);
+                } catch (err) {}
+              });
+            }
+          }
+          userSockets.delete(socket.id);
+          users.delete(user.id);
+        }
+      }
     });
   });
 };
