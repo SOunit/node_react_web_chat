@@ -12,11 +12,12 @@ const Chat = () => {
   const user = useSelector((state) => state.authReducer.user);
   useSocket(user, dispatch);
 
-  useEffect(() => {
-    dispatch(fetchChats())
-      .then((res) => console.log(res))
-      .catch((err) => console.log(err));
-  }, [dispatch]);
+  // move logic to socketConnect.js to avoid error by socket process deley
+  // useEffect(() => {
+  //   dispatch(fetchChats())
+  //     .then((res) => console.log(res))
+  //     .catch((err) => console.log(err));
+  // }, [dispatch]);
 
   return (
     <div id='chat-container' className='card-shadow'>
