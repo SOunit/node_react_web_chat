@@ -4,9 +4,9 @@ const Message = require('../models').Message;
 
 // user anyone who login to chat
 // key = user id, value = sockets?
-// 1 => {}
+// users Map(1) { 1 => { id: 1, sockets: [ 'xGlQAao8aAumlJd_AAAH' ] } }
 const users = new Map();
-// key = xxx, value = yyy
+// userSockets Map(1) { 'xGlQAao8aAumlJd_AAAH' => 1 }
 const userSockets = new Map();
 
 const socketServer = (server) => {
