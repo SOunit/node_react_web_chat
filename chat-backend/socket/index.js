@@ -114,6 +114,22 @@ const socketServer = (server) => {
       } catch (err) {}
     });
 
+    socket.on('typing', async (message) => {
+      // target here is [chat related users && login users]!!!
+      // message -> related users (chat users) -> login users -> emit 'typing'
+
+      // toUserId = user ids = chat.Users = users in chat except yourself
+      message.toUserId.forEach((id) => {
+        // users = login users
+        if (users.has(id)) {
+          // user can have multiple socket in multiple devices
+          users.get(id).sockets.forEach((socket) => {
+            io.to(socket).emit('typing', message);
+          });
+        }
+      });
+    });
+
     socket.on('disconnect', async () => {
       console.log('socket.on disconnect');
 

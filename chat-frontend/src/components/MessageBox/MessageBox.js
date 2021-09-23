@@ -6,6 +6,7 @@ import './MessageBox.scss';
 const MessengeBox = ({ chat }) => {
   const user = useSelector((state) => state.authReducer.user);
   const scrollBottom = useSelector((state) => state.chatReducer.scrollBottom);
+  const senderTyping = useSelector((state) => state.chatReducer.senderTyping);
   const msgBox = useRef();
 
   useEffect(() => {
@@ -31,6 +32,16 @@ const MessengeBox = ({ chat }) => {
           />
         );
       })}
+      {senderTyping.typing && senderTyping.chatId === chat.id ? (
+        <div className='message'>
+          <div className='other-person'>
+            <p className='m-0'>
+              {senderTyping.fromUser.firstName} {senderTyping.fromUser.lastName}
+              ...
+            </p>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 };
