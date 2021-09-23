@@ -1,6 +1,6 @@
 import API from './api';
 
-const chatService = {
+const ChatService = {
   fetchChats: () => {
     return API.get('/chats')
       .then(({ data }) => {
@@ -10,6 +10,20 @@ const chatService = {
         throw err;
       });
   },
+
+  uploadImage: (data) => {
+    const headers = {
+      headers: { 'Content-type': 'application/x-www-form-urlencoded' },
+    };
+
+    return API.post('/chats/upload-image', data, headers)
+      .then(({ data }) => {
+        return data.url;
+      })
+      .catch((err) => {
+        throw err;
+      });
+  },
 };
 
-export default chatService;
+export default ChatService;

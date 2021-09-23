@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import ChatService from '../../services/chatService';
 import './MessageInput.scss';
 
 const MessengeInput = ({ chat }) => {
@@ -35,7 +36,7 @@ const MessengeInput = ({ chat }) => {
       fromUser: user,
       toUserId: chat.Users.map((user) => user.id),
       chatId: chat.id,
-      message: imageUpload ? image : message,
+      message: imageUpload ? imageUpload : message,
     };
 
     setMessage('');
@@ -51,6 +52,11 @@ const MessengeInput = ({ chat }) => {
     formData.append('image', image);
 
     // chat service
+    ChatService.uploadImage(formData)
+      .then((image) => {
+        sendMessage(image);
+      })
+      .catch((err) => console.log(err));
   };
 
   return (

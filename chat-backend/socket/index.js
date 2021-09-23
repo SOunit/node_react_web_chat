@@ -104,6 +104,7 @@ const socketServer = (server) => {
         message.User = message.fromUser;
         message.fromUserId = message.fromUser.id;
         message.id = savedMessage.id;
+        message.message = savedMessage.message;
         delete message.fromUser;
 
         // send message to all sockets
