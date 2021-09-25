@@ -27,7 +27,7 @@ const ChatService = {
 
   // chatId, page to fetch
   paginateMessages: (id, page) => {
-    return API.get('/messages', { params: { id, page } })
+    return API.get('/chats/messages', { params: { id, page } })
       .then(({ data }) => {
         return data;
       })
