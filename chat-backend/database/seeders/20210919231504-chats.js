@@ -18,7 +18,7 @@ module.exports = {
      * }], {});
      */
 
-    const users = await User.findAll({ limit: 2 });
+    const users = await User.findAll({ limit: 3 });
     const chat = await Chat.create();
 
     await ChatUser.bulkCreate([
@@ -47,6 +47,37 @@ module.exports = {
         message: 'Long time no see',
         chatId: chat.id,
         fromUserId: users[1].id,
+      },
+    ]);
+
+    const chat2 = await Chat.create();
+
+    await ChatUser.bulkCreate([
+      {
+        chatId: chat2.id,
+        userId: users[0].id,
+      },
+      {
+        chatId: chat2.id,
+        userId: users[2].id,
+      },
+    ]);
+
+    await Message.bulkCreate([
+      {
+        message: 'Hello friend',
+        chatId: chat2.id,
+        fromUserId: users[0].id,
+      },
+      {
+        message: 'Hi buddy',
+        chatId: chat2.id,
+        fromUserId: users[2].id,
+      },
+      {
+        message: 'Long time no see',
+        chatId: chat2.id,
+        fromUserId: users[2].id,
       },
     ]);
   },

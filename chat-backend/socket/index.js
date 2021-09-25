@@ -1,8 +1,12 @@
 const socketIo = require('socket.io');
 const { sequelize } = require('../models');
+const Message = require('../models').Message;
 
 // user anyone who login to chat
+// key = user id, value = sockets?
+// users Map(1) { 1 => { id: 1, sockets: [ 'xGlQAao8aAumlJd_AAAH' ] } }
 const users = new Map();
+// userSockets Map(1) { 'xGlQAao8aAumlJd_AAAH' => 1 }
 const userSockets = new Map();
 
 const socketServer = (server) => {
@@ -63,6 +67,67 @@ const socketServer = (server) => {
       // console.log(`New user joined: ${user.firstName}`);
       // return response back to front
       // io.to(socket.id).emit('typing', 'User typing...');
+    });
+
+    socket.on('message', async (message) => {
+      console.log('on message --------');
+      console.log('message', message);
+      console.log('users', users);
+      console.log('userSockets', userSockets);
+      let sockets = [];
+
+      if (users.has(message.fromUser.id)) {
+        sockets = users.get(message.fromUser.id).sockets;
+      }
+
+      // message.toUserId = all users to send message?
+      // sockets = active users?
+      message.toUserId.forEach((id) => {
+        // why this check?
+        if (users.has(id)) {
+          sockets = [...sockets, ...users.get(id).sockets];
+        }
+      });
+
+      try {
+        const msg = {
+          type: message.type,
+          fromUserId: message.fromUser.id,
+          chatId: message.chatId,
+          message: message.message,
+        };
+
+        // create db data
+        const savedMessage = await Message.create(msg);
+
+        // change data as frontend expect
+        message.User = message.fromUser;
+        message.fromUserId = message.fromUser.id;
+        message.id = savedMessage.id;
+        message.message = savedMessage.message;
+        delete message.fromUser;
+
+        // send message to all sockets
+        sockets.forEach((socket) => {
+          io.to(socket).emit('received', message);
+        });
+      } catch (err) {}
+    });
+
+    socket.on('typing', async (message) => {
+      // target here is [chat related users && login users]!!!
+      // message -> related users (chat users) -> login users -> emit 'typing'
+
+      // toUserId = user ids = chat.Users = users in chat except yourself
+      message.toUserId.forEach((id) => {
+        // users = login users
+        if (users.has(id)) {
+          // user can have multiple socket in multiple devices
+          users.get(id).sockets.forEach((socket) => {
+            io.to(socket).emit('typing', message);
+          });
+        }
+      });
     });
 
     socket.on('disconnect', async () => {

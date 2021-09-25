@@ -4,11 +4,19 @@ import {
   FRIENDS_ONLINE,
   FRIEND_ONLINE,
   FRIEND_OFFLINE,
+  SET_SOCKET,
+  RECEIVED_MESSAGE,
+  SENDER_TYPING,
 } from '../actions/chat';
 
 const initialState = {
   chats: [],
+  // open chat in message box
   currentChat: {},
+  socket: {},
+  newMessage: { chatId: null, seen: null },
+  scrollBottom: 0,
+  senderTyping: { typing: false },
 };
 
 const chatReducer = (state = initialState, action) => {
@@ -26,6 +34,8 @@ const chatReducer = (state = initialState, action) => {
       return {
         ...state,
         currentChat: payload,
+        scrollBottom: state.scrollBottom + 1,
+        newMessage: { chatId: null, seen: null },
       };
     }
 
@@ -107,6 +117,83 @@ const chatReducer = (state = initialState, action) => {
         ...state,
         chats: chatsCopy,
         currentChat: currentChatCopy,
+      };
+    }
+
+    case SET_SOCKET: {
+      return {
+        ...state,
+        socket: payload,
+      };
+    }
+
+    case RECEIVED_MESSAGE: {
+      const { userId, message } = payload;
+      let currentChatCopy = { ...state.currentChat };
+      let newMessage = { ...state.newMessage };
+      let scrollBottom = state.scrollBottom;
+
+      const chatsCopy = state.chats.map((chat) => {
+        if (message.chatId === chat.id) {
+          // message.User = from user
+          // userId =
+          if (message.User.id === userId) {
+            scrollBottom++;
+          } else {
+            newMessage = {
+              chatId: chat.id,
+              seen: false,
+            };
+          }
+
+          if (message.chatId === currentChatCopy.id) {
+            currentChatCopy = {
+              ...currentChatCopy,
+              Messages: [...currentChatCopy.Messages, ...[message]],
+            };
+          }
+
+          return {
+            ...chat,
+            Messages: [...chat.Messages, ...[message]],
+          };
+        }
+
+        return chat;
+      });
+
+      if (scrollBottom === state.scrollBottom) {
+        return {
+          ...state,
+          chats: chatsCopy,
+          currentChat: currentChatCopy,
+          newMessage,
+          senderTyping: { typing: false },
+        };
+      }
+
+      return {
+        ...state,
+        chats: chatsCopy,
+        currentChat: currentChatCopy,
+        newMessage,
+        scrollBottom,
+        senderTyping: { typing: false },
+      };
+    }
+
+    case SENDER_TYPING: {
+      if (payload.typing) {
+        return {
+          ...state,
+          senderTyping: payload,
+          scrollBottom: state.scrollBottom + 1,
+        };
+      }
+
+      return {
+        ...state,
+        senderTyping: payload,
       };
     }
 
