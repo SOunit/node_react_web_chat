@@ -64,7 +64,7 @@ const MessengeInput = ({ chat }) => {
     setImage('');
     setShowEmojiPicker(false);
 
-    // send message with socket
+    // send message by socket
     socket.emit('message', msg);
   };
 
