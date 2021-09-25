@@ -11,12 +11,16 @@ const MessengeBox = ({ chat }) => {
   const scrollBottom = useSelector((state) => state.chatReducer.scrollBottom);
   const senderTyping = useSelector((state) => state.chatReducer.senderTyping);
   const [loading, setLoading] = useState(false);
+  const [scrollUp, setScrollUp] = useState(0);
   const msgBox = useRef();
 
+  // scroll to bottom when load window
   useEffect(() => {
-    setTimeout(() => {
-      scrollManual(msgBox.current.scrollHeight);
-    }, 100);
+    if (!senderTyping.typing) {
+      setTimeout(() => {
+        scrollManual(msgBox.current.scrollHeight);
+      }, 100);
+    }
   }, [scrollBottom]);
 
   const scrollManual = (value) => {
@@ -33,6 +37,7 @@ const MessengeBox = ({ chat }) => {
       dispatch(paginateMessages(chat.id, parseInt(page) + 1))
         .then((res) => {
           if (res) {
+            setScrollUp((prevState) => prevState + 1);
           }
           setLoading(false);
         })
@@ -41,6 +46,24 @@ const MessengeBox = ({ chat }) => {
         });
     }
   };
+
+  useEffect(() => {
+    if (
+      senderTyping.typing &&
+      msgBox.current.scrollTop > msgBox.current.scrollHeight * 0.3
+    ) {
+      setTimeout(() => {
+        scrollManual(Math.ceil(msgBox.current.scrollHeight * 0.1));
+      }, 100);
+    }
+  }, [senderTyping]);
+
+  // automatic scroll down when user load next page
+  useEffect(() => {
+    setTimeout(() => {
+      scrollManual(Math.ceil(msgBox.current.scrollHeight * 0.1));
+    }, 100);
+  }, [scrollUp]);
 
   return (
     <div onScroll={handleInfiniteScroll} id='msg-box' ref={msgBox}>
