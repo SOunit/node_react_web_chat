@@ -59,8 +59,12 @@ const chatReducer = (state = initialState, action) => {
     }
 
     case FRIEND_ONLINE: {
+      // current chat = open chat
+      // fetch data to update user status
       let currentChatCopy = { ...state.currentChat };
 
+      // update logged-in-user status to online
+      // state.chats = chats connected to login user
       const chatsCopy = state.chats.map((chat) => {
         const Users = chat.Users.map((user) => {
           if (user.id === parseInt(payload.id)) {
@@ -69,6 +73,7 @@ const chatReducer = (state = initialState, action) => {
           return user;
         });
 
+        // update current chat if chat update should be applied too
         if (chat.id === currentChatCopy.id) {
           currentChatCopy = {
             ...currentChatCopy,
@@ -76,12 +81,17 @@ const chatReducer = (state = initialState, action) => {
           };
         }
 
+        // return updated status users
+        // no change on chat
         return {
           ...chat,
           Users,
         };
       });
 
+      // return updated chats
+      // return updated currentChat
+      // user status is updated in both objects
       return {
         ...state,
         chats: chatsCopy,
@@ -127,25 +137,32 @@ const chatReducer = (state = initialState, action) => {
       };
     }
 
+    // when front create message and back finish on message, back emit received
     case RECEIVED_MESSAGE: {
       const { userId, message } = payload;
+      // current chat = open chat
       let currentChatCopy = { ...state.currentChat };
       let newMessage = { ...state.newMessage };
       let scrollBottom = state.scrollBottom;
 
       const chatsCopy = state.chats.map((chat) => {
+        // one user's all chats -> one chat with new message's chat id
         if (message.chatId === chat.id) {
-          // message.User = from user
-          // userId =
+          // change new message props
+          // if user who created message = login user
           if (message.User.id === userId) {
+            // change value, scroll happen
+            // value can be anything
             scrollBottom++;
           } else {
+            // update new message state for other users
             newMessage = {
               chatId: chat.id,
               seen: false,
             };
           }
 
+          // if new message is in onpen chat
           if (message.chatId === currentChatCopy.id) {
             currentChatCopy = {
               ...currentChatCopy,
@@ -172,6 +189,7 @@ const chatReducer = (state = initialState, action) => {
         };
       }
 
+      // if login user = user who created message
       return {
         ...state,
         chats: chatsCopy,

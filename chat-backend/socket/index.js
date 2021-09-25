@@ -13,15 +13,18 @@ const socketServer = (server) => {
   const io = socketIo(server);
 
   io.on('connection', (socket) => {
+    // save login users, user's sockets
     socket.on('join', async (user) => {
       console.log('socket.on join');
       let sockets = [];
 
+      // if user exists
       if (users.has(user.id)) {
         console.log('socket.on join update');
-        // update
+        // update = add new socket to exsiting user sockets
         const existingUser = users.get(user.id);
         existingUser.sockets = [...existingUser.sockets, ...[socket.id]];
+
         users.set(user.id, existingUser);
         sockets = [...existingUser.sockets, ...[socket.id]];
         userSockets.set(socket.id, user.id);
@@ -33,20 +36,22 @@ const socketServer = (server) => {
         userSockets.set(socket.id, user.id);
       }
 
-      console.log('socket.on join users', users);
-      console.log('socket.on join userSockets', userSockets);
-
       // ids
+      // to emit friends = ONLINE_FRIENDS
       const onlineFriends = [];
 
-      // query
+      // fetch all users related to login user, this here is on join
       const chatters = await getChatters(user.id);
-      console.log(chatters);
 
-      // notify his friends that user is now online
+      // notify his friends, online users
       for (let i = 0; i < chatters.length; i++) {
+        // if chatter is online user
         if (users.has(chatters[i])) {
+          // chatter is
+          // {id: 1, sockets: [aaa, bbb]}
           const chatter = users.get(chatters[i]);
+
+          // emit online to notify existing users that new login user is online
           chatter.sockets.forEach((socket) => {
             try {
               io.to(socket).emit('online', user);
@@ -56,7 +61,6 @@ const socketServer = (server) => {
         }
       }
 
-      console.log('sockets for emit friends', sockets);
       // send to user sockets which of his friends are online
       sockets.forEach((socket) => {
         try {
@@ -69,21 +73,20 @@ const socketServer = (server) => {
       // io.to(socket.id).emit('typing', 'User typing...');
     });
 
+    // when front create new message
+    // get sockets from message-to users, message-from user to emit received
+    // received update user chat screen by adding new message
     socket.on('message', async (message) => {
-      console.log('on message --------');
-      console.log('message', message);
-      console.log('users', users);
-      console.log('userSockets', userSockets);
       let sockets = [];
 
+      // get sockets to emit received to message-from-user
       if (users.has(message.fromUser.id)) {
         sockets = users.get(message.fromUser.id).sockets;
       }
 
-      // message.toUserId = all users to send message?
-      // sockets = active users?
+      // get sockets to emit received to message-to-user
       message.toUserId.forEach((id) => {
-        // why this check?
+        // if user login(users data is added when user login)
         if (users.has(id)) {
           sockets = [...sockets, ...users.get(id).sockets];
         }
@@ -104,6 +107,8 @@ const socketServer = (server) => {
         message.User = message.fromUser;
         message.fromUserId = message.fromUser.id;
         message.id = savedMessage.id;
+        // to use sequelize custom get
+        // message could be message or image
         message.message = savedMessage.message;
         delete message.fromUser;
 
@@ -120,7 +125,7 @@ const socketServer = (server) => {
 
       // toUserId = user ids = chat.Users = users in chat except yourself
       message.toUserId.forEach((id) => {
-        // users = login users
+        // if to-user is loggedin
         if (users.has(id)) {
           // user can have multiple socket in multiple devices
           users.get(id).sockets.forEach((socket) => {
