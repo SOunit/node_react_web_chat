@@ -8,6 +8,7 @@ export const FRIEND_OFFLINE = 'FRIEND_OFFLINE';
 export const SET_SOCKET = 'SET_SOCKET';
 export const RECEIVED_MESSAGE = 'RECEIVED_MESSAGE';
 export const SENDER_TYPING = 'SENDER_TYPING';
+export const PAGENATE_MESSAGES = 'PAGENATE_MESSAGES';
 
 export const fetchChats = () => (dispatch) => {
   return ChatService.fetchChats()
@@ -57,4 +58,19 @@ export const receivedMessage = (message, userId) => (dispatch) => {
 
 export const senderTyping = (sender) => (dispatch) => {
   dispatch({ type: SENDER_TYPING, payload: sender });
+};
+
+export const paginateMessages = (id, page) => (dispatch) => {
+  return ChatService.paginateMessages(id, page)
+    .then((messages, pagination) => {
+      if (typeof messages !== 'undefined' && messages.length > 0) {
+        messages.reverse();
+        const payload = { messages, id, pagination };
+        dispatch({ type: PAGENATE_MESSAGES, payload });
+        // to stop pagination
+        return true;
+      }
+      return false;
+    })
+    .catch((e) => console.log(e));
 };

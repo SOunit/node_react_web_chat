@@ -103,6 +103,7 @@ exports.messages = async (req, res) => {
     include: { model: User },
     limit,
     offset,
+    order: [['id', 'DESC']],
   });
 
   // 100 messages
