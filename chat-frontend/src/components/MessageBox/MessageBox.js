@@ -1,26 +1,77 @@
-import { useEffect, useRef } from 'react';
-import { useSelector } from 'react-redux';
+import { useEffect, useRef, useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import Message from '../Message/Message';
+import { paginateMessages } from '../../store/actions/chat';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import './MessageBox.scss';
 
 const MessengeBox = ({ chat }) => {
+  const dispatch = useDispatch();
   const user = useSelector((state) => state.authReducer.user);
   const scrollBottom = useSelector((state) => state.chatReducer.scrollBottom);
   const senderTyping = useSelector((state) => state.chatReducer.senderTyping);
+  const [loading, setLoading] = useState(false);
+  const [scrollUp, setScrollUp] = useState(0);
   const msgBox = useRef();
-
-  useEffect(() => {
-    setTimeout(() => {
-      scrollManual(msgBox.current.scrollHeight);
-    }, 100);
-  }, [scrollBottom]);
 
   const scrollManual = (value) => {
     msgBox.current.scrollTop = value;
   };
 
+  const handleInfiniteScroll = (e) => {
+    // if user scroll to top
+    if (e.target.scrollTop === 0) {
+      setLoading(true);
+      const pagination = chat.Pagination;
+      const page = typeof pagination === 'undefined' ? 1 : pagination.page;
+
+      dispatch(paginateMessages(chat.id, parseInt(page) + 1))
+        .then((res) => {
+          if (res) {
+            setScrollUp((prevState) => prevState + 1);
+          }
+          setLoading(false);
+        })
+        .catch((err) => {
+          setLoading(false);
+        });
+    }
+  };
+
+  // automatic scroll down when user load next page
+  useEffect(() => {
+    setTimeout(() => {
+      scrollManual(Math.ceil(msgBox.current.scrollHeight * 0.1));
+    }, 100);
+  }, [scrollUp]);
+
+  useEffect(() => {
+    if (
+      senderTyping.typing &&
+      msgBox.current.scrollTop > msgBox.current.scrollHeight * 0.3
+    ) {
+      setTimeout(() => {
+        scrollManual(msgBox.current.scrollHeight);
+      }, 100);
+    }
+  }, [senderTyping]);
+
+  // scroll to bottom when load window
+  useEffect(() => {
+    if (!senderTyping.typing) {
+      setTimeout(() => {
+        scrollManual(msgBox.current.scrollHeight);
+      }, 100);
+    }
+  }, [scrollBottom]);
+
   return (
-    <div id='msg-box' ref={msgBox}>
+    <div onScroll={handleInfiniteScroll} id='msg-box' ref={msgBox}>
+      {loading ? (
+        <p className='loader m-0'>
+          <FontAwesomeIcon icon='spinner' className='fa-spin' />
+        </p>
+      ) : null}
       {chat.Messages.map((message, index) => {
         return (
           <Message

@@ -7,6 +7,8 @@ import {
   SET_SOCKET,
   RECEIVED_MESSAGE,
   SENDER_TYPING,
+  PAGINATE_MESSAGES,
+  INCREMENT_SCROLL,
 } from '../actions/chat';
 
 const initialState = {
@@ -21,6 +23,8 @@ const initialState = {
 
 const chatReducer = (state = initialState, action) => {
   const { type, payload } = action;
+  console.log(type);
+  console.log(payload);
 
   switch (type) {
     case FETCH_CHATS: {
@@ -212,6 +216,43 @@ const chatReducer = (state = initialState, action) => {
       return {
         ...state,
         senderTyping: payload,
+      };
+    }
+
+    case PAGINATE_MESSAGES: {
+      const { messages, id, pagination } = payload;
+
+      let currentChatCopy = { ...state.currentChat };
+
+      const chatsCopy = state.chats.map((chat) => {
+        if (chat.id === id) {
+          // latest messages + old messages
+          const shifted = [...messages, ...chat.Messages];
+
+          currentChatCopy = {
+            ...currentChatCopy,
+            Messages: shifted,
+            Pagination: pagination,
+          };
+
+          return { ...chat, Messages: shifted, Pagination: pagination };
+        }
+
+        return chat;
+      });
+
+      return {
+        ...state,
+        chats: chatsCopy,
+        currentChat: currentChatCopy,
+      };
+    }
+
+    case INCREMENT_SCROLL: {
+      return {
+        ...state,
+        scrollBottom: state.scrollBottom + 1,
+        newMessage: { chatId: null, seen: true },
       };
     }
 

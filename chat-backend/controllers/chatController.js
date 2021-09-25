@@ -92,17 +92,16 @@ exports.create = async (req, res) => {
 };
 
 exports.messages = async (req, res) => {
-  console.log('chatController messages');
-
   const limit = 10;
   const page = req.query.page || 1;
-  const offset = page > 1 ? page + limit : 0;
+  const offset = page > 1 ? page * limit : 0;
 
   const messages = await Message.findAndCountAll({
     where: { chatId: req.query.id },
     include: { model: User },
     limit,
     offset,
+    order: [['id', 'DESC']],
   });
 
   // 100 messages
@@ -122,7 +121,7 @@ exports.messages = async (req, res) => {
     },
   };
 
-  return res.json({ data: result });
+  return res.json(result);
 };
 
 exports.imageUpload = async (req, res) => {
