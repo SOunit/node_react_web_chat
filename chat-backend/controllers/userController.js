@@ -34,6 +34,7 @@ exports.update = async (req, res) => {
 };
 
 exports.search = async (req, res) => {
+  console.log('userController search');
   try {
     const users = await User.findAll({
       where: {
@@ -43,11 +44,11 @@ exports.search = async (req, res) => {
               'concat',
               sequelize.col('firstName'),
               ' ',
-              sequelize.col('lastName'),
-              {
-                [sequelize.Op.iLike]: `%${req.query.term}%`,
-              }
-            )
+              sequelize.col('lastName')
+            ),
+            {
+              [sequelize.Op.iLike]: `%${req.query.term}%`,
+            }
           ),
           email: {
             [sequelize.Op.iLike]: `%${req.query.term}%`,

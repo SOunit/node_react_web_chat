@@ -6,6 +6,6 @@ const { auth } = require('../middleware/auth');
 const { useFile } = require('../middleware/fileUpload');
 
 router.post('/update', [auth, useFile, updateRules, validate], update);
-router.get('/search', auth, search);
+router.get('/search-users', auth, search);
 
 module.exports = router;
