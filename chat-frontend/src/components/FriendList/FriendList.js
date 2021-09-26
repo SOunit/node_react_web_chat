@@ -9,6 +9,7 @@ import './FriendList.scss';
 const FriendList = () => {
   const dispatch = useDispatch();
   const chats = useSelector((state) => state.chatReducer.chats);
+  const socket = useSelector((state) => state.chatReducer.socket);
   const [showFriendModal, setShowFriendModal] = useState(false);
   const [suggestions, setSuggestions] = useState([]);
 
@@ -24,7 +25,13 @@ const FriendList = () => {
   };
 
   const addNewFriend = (id) => {
-    // dispatch
+    ChatService.createChat(id)
+      .then((chats) => {
+        // emit
+        socket.emit('add-friend', chats);
+        setShowFriendModal(false);
+      })
+      .catch((err) => console.log(err));
   };
 
   return (

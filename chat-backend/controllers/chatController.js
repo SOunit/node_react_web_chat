@@ -76,15 +76,30 @@ exports.create = async (req, res) => {
     );
     await transaction.commit();
 
-    const chatNew = await Chat.findOne({
-      where: { id: chat.id },
-      include: [
-        { model: User, where: { [Op.not]: { id: req.user.id } } },
-        { model: Message },
-      ],
-    });
+    // const chatNew = await Chat.findOne({
+    //   where: { id: chat.id },
+    //   include: [
+    //     { model: User, where: { [Op.not]: { id: req.user.id } } },
+    //     { model: Message },
+    //   ],
+    // });
 
-    return res.json(chatNew);
+    const creator = await User.findOne({ where: { id: req.user.id } });
+    const partner = await User.findOne({ where: { id: partnerId } });
+    const forCreator = {
+      id: chat.id,
+      type: 'dual',
+      Users: [partner],
+      Messages: [],
+    };
+    const forReceiver = {
+      id: chat.id,
+      type: 'dual',
+      Users: [creator],
+      Messages: [],
+    };
+
+    return res.json([forCreator, forReceiver]);
   } catch (err) {
     await transaction.rollback();
     return res.status(500).json({ status: 'Error', message: err.message });

@@ -45,6 +45,16 @@ const ChatService = {
         throw err;
       });
   },
+
+  createChat: (partnerId) => {
+    return API.get('/chats/create', { partnerId })
+      .then(({ data }) => {
+        return data;
+      })
+      .catch((err) => {
+        throw err;
+      });
+  },
 };
 
 export default ChatService;

@@ -135,6 +135,36 @@ const socketServer = (server) => {
       });
     });
 
+    // when add friend in client
+    // send notification to creator(user) and partner(user)
+    socket.on('add-friend', (chats) => {
+      try {
+        let online = 'offline';
+        // chats[0] = forCreator = {id, type, Users: [partner], Messages: []}
+        // chats[1] = forPartner = {id, type, Users: [partner], Messages: []}
+        if (users.has(chats[1].Users[0].id)) {
+          // set partner online
+          online = 'online';
+          // set creator online
+          chats[0].Users[0].status = 'online';
+
+          // get partner user and emit to partner user sockets
+          users.get(chats[1].Users[0].id).sockets.forEach((socket) => {
+            // send other users info, creator info here
+            io.to(socket).emit('new-chat', chats[0]);
+          });
+        }
+
+        if (users.has(chats[0].Users[0].id)) {
+          chats[1].Users[0].status = online;
+          users.get(chats[0].Users[0].id).sockets.forEach((socket) => {
+            // send other users info, partner info here
+            io.to(socket).emit('new-chat', chats[1]);
+          });
+        }
+      } catch {}
+    });
+
     socket.on('disconnect', async () => {
       console.log('socket.on disconnect');
 
