@@ -14,9 +14,6 @@ const ChatHeader = ({ chat }) => {
   const [showDeleteChatModal, setShowDeleteChatModal] = useState(false);
   const [suggestions, setSuggestions] = useState([]);
 
-  console.log('ChatHeader chat', chat);
-  console.log('ChatHeader chat.group', chat.type === 'group');
-
   const searchFriends = (event) => {
     // chat service
     ChatService.searchUsers(event.target.value).then((res) =>
