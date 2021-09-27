@@ -155,13 +155,16 @@ exports.addUserToGroup = async (req, res) => {
       include: [
         { model: User },
         {
-          mode: Message,
+          model: Message,
           include: [{ model: User }],
           limit: 20,
           order: [['id', 'DESC']],
         },
       ],
     });
+
+    // sort messages
+    chat.Messages.reverse();
 
     // check if already in the group
     chat.Users.forEach((user) => {
