@@ -14,6 +14,9 @@ const ChatHeader = ({ chat }) => {
   const [showDeleteChatModal, setShowDeleteChatModal] = useState(false);
   const [suggestions, setSuggestions] = useState([]);
 
+  console.log('ChatHeader chat', chat);
+  console.log('ChatHeader chat.group', chat.type === 'group');
+
   const searchFriends = (event) => {
     // chat service
     ChatService.searchUsers(event.target.value).then((res) =>
@@ -28,6 +31,14 @@ const ChatHeader = ({ chat }) => {
         // emit
         socket.emit('add-user-to-group', data);
         setShowAddFriendModal(false);
+      })
+      .catch((err) => console.log(err));
+  };
+
+  const leaveChat = () => {
+    ChatService.leaveCurrentChat(chat.id)
+      .then((data) => {
+        socket.emit('leave-current-chat', data);
       })
       .catch((err) => console.log(err));
   };
@@ -61,7 +72,7 @@ const ChatHeader = ({ chat }) => {
           </div>
 
           {chat.type === 'group' ? (
-            <div>
+            <div onClick={() => leaveChat()}>
               <FontAwesomeIcon
                 icon={['fas', 'sign-out-alt']}
                 className='fa-icon'

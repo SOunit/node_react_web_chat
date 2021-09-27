@@ -65,6 +65,16 @@ const ChatService = {
         throw err;
       });
   },
+
+  leaveCurrentChat: (chatId) => {
+    return API.post('/chats/leave-current-chat', { chatId })
+      .then(({ data }) => {
+        return data;
+      })
+      .catch((err) => {
+        throw err;
+      });
+  },
 };
 
 export default ChatService;

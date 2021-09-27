@@ -198,6 +198,23 @@ const socketServer = (server) => {
       }
     });
 
+    socket.on('leave-current-chat', async (data) => {
+      const { chatId, userId, currentUserId, notifyUsers } = data;
+      notifyUsers.forEach((id) => {
+        if (users.has(id)) {
+          users.get(id).sockets.forEach((socket) => {
+            try {
+              io.to(socket).emit('remove-user-from-chat', {
+                chatId,
+                userId,
+                currentUserId,
+              });
+            } catch (err) {}
+          });
+        }
+      });
+    });
+
     socket.on('disconnect', async () => {
       console.log('socket.on disconnect');
 
