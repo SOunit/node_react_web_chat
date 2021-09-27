@@ -11,6 +11,7 @@ import {
   INCREMENT_SCROLL,
   CREATE_CHAT,
   ADD_USER_TO_GROUP,
+  LEAVE_CURRENT_CHAT,
 } from '../actions/chat';
 
 const initialState = {
@@ -302,6 +303,35 @@ const chatReducer = (state = initialState, action) => {
         chats: chatsCopy,
         currentChat: currentChatCopy,
       };
+    }
+
+    case LEAVE_CURRENT_CHAT: {
+      const { chatId, userId, currentUserId } = payload;
+
+      if (userId === currentUserId) {
+        // delete chat if current user is leaving the chat
+        const chatsCopy = state.chats.filter((chat) => chat.id !== chatId);
+        return {
+          ...state,
+          chats: chatsCopy,
+          currentChat: state.currentChat.id === chatId ? {} : state.currentChat,
+        };
+      } else {
+        const chatsCopy = state.chats.map((chat) => {
+          if (chatId === chat.id) {
+            return {
+              ...chat,
+              Users: chat.Users.filter((user) => user.id !== userId),
+            };
+          }
+          return chat;
+        });
+        let currentChatCopy = [...state.currentChat];
+        if (currentChatCopy.id === chatId) {
+          currentChatCopy.Users.filter((user) => user.id !== userId);
+        }
+        return { ...state, chats: chatsCopy, currentChat: currentChatCopy };
+      }
     }
 
     default: {
