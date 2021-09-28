@@ -9,6 +9,10 @@ import {
   SENDER_TYPING,
   PAGINATE_MESSAGES,
   INCREMENT_SCROLL,
+  CREATE_CHAT,
+  ADD_USER_TO_GROUP,
+  LEAVE_CURRENT_CHAT,
+  DELETE_CURRENT_CHAT,
 } from '../actions/chat';
 
 const initialState = {
@@ -23,8 +27,8 @@ const initialState = {
 
 const chatReducer = (state = initialState, action) => {
   const { type, payload } = action;
-  console.log(type);
-  console.log(payload);
+  console.log('chatReducer type', type);
+  console.log('chatReducer payload', payload);
 
   switch (type) {
     case FETCH_CHATS: {
@@ -253,6 +257,102 @@ const chatReducer = (state = initialState, action) => {
         ...state,
         scrollBottom: state.scrollBottom + 1,
         newMessage: { chatId: null, seen: true },
+      };
+    }
+
+    case CREATE_CHAT: {
+      return {
+        ...state,
+        chats: [...state.chats, ...[payload]],
+      };
+    }
+
+    case ADD_USER_TO_GROUP: {
+      const { chat, chatters } = payload;
+      let exists = false;
+      const chatsCopy = state.chats.map((chatState) => {
+        // if chat id is target chat id
+        if (chat.id === chatState.id) {
+          exists = true;
+          // add chatters(new users) to chat
+          return {
+            ...chatState,
+            Users: [...chatState.Users, ...chatters],
+          };
+        }
+        // if not target, just return chat
+        return chatState;
+      });
+
+      if (!exists) {
+        chatsCopy.push(chat);
+      }
+
+      // to avoid the case where new user has no chat
+      let currentChatCopy = { ...state.currentChat };
+      if (Object.keys(currentChatCopy).length > 0) {
+        if (chat.id === currentChatCopy.id) {
+          currentChatCopy = {
+            ...state.currentChat,
+            Users: [...state.currentChat.Users, ...chatters],
+          };
+        }
+      }
+
+      return {
+        ...state,
+        chats: chatsCopy,
+        currentChat: currentChatCopy,
+      };
+    }
+
+    case LEAVE_CURRENT_CHAT: {
+      const { chatId, userId, currentUserId } = payload;
+      console.log('reducer LEAVE_CURRENT_CHAT');
+
+      if (userId === currentUserId) {
+        // login user is leaving
+        console.log('login user is leaving');
+        const chatsCopy = state.chats.filter((chat) => chat.id !== chatId);
+        return {
+          ...state,
+          chats: chatsCopy,
+          currentChat: state.currentChat.id === chatId ? {} : state.currentChat,
+        };
+      } else {
+        // other user is leaving
+        const chatsCopy = state.chats.map((chat) => {
+          if (chatId === chat.id) {
+            const filteredUsers = chat.Users.filter(
+              (user) => user.id !== userId
+            );
+            // update Users in chat object
+            return {
+              ...chat,
+              Users: filteredUsers,
+            };
+          }
+          return chat;
+        });
+
+        // update current chat
+        let currentChatCopy = { ...state.currentChat };
+        if (currentChatCopy.id === chatId) {
+          currentChatCopy = {
+            ...currentChatCopy,
+            Users: currentChatCopy.Users.filter((user) => user.id !== userId),
+          };
+        }
+
+        return { ...state, chats: chatsCopy, currentChat: currentChatCopy };
+      }
+    }
+
+    case DELETE_CURRENT_CHAT: {
+      return {
+        ...state,
+        chats: state.chats.filter((chat) => chat.id !== payload),
+        currentChat: state.currentChat.id === payload ? {} : state.currentChat,
       };
     }
 

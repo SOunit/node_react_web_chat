@@ -135,6 +135,100 @@ const socketServer = (server) => {
       });
     });
 
+    // when add friend in client
+    // send notification to creator(user) and partner(user)
+    socket.on('add-friend', (chats) => {
+      try {
+        let online = 'offline';
+        // chats[0] = forCreator = {id, type, Users: [partner], Messages: []}
+        // chats[1] = forPartner = {id, type, Users: [partner], Messages: []}
+        if (users.has(chats[1].Users[0].id)) {
+          // set partner online
+          online = 'online';
+          // set creator online
+          chats[0].Users[0].status = 'online';
+
+          // get partner user and emit to partner user sockets
+          users.get(chats[1].Users[0].id).sockets.forEach((socket) => {
+            // send other users info, creator info here
+            io.to(socket).emit('new-chat', chats[0]);
+          });
+        }
+
+        if (users.has(chats[0].Users[0].id)) {
+          chats[1].Users[0].status = online;
+          users.get(chats[0].Users[0].id).sockets.forEach((socket) => {
+            // send other users info, partner info here
+            io.to(socket).emit('new-chat', chats[1]);
+          });
+        }
+      } catch {}
+    });
+
+    socket.on('add-user-to-group', async ({ chat, newChatter }) => {
+      if (users.has(newChatter.id)) {
+        newChatter.status = 'online';
+      }
+
+      // old users
+      chat.Users.forEach((user, index) => {
+        if (users.has(user.id)) {
+          chat.Users[index].status = 'online';
+          users.get(user.id).sockets.forEach((socket) => {
+            try {
+              io.to(socket).emit('added-user-to-group', {
+                chat,
+                chatters: [newChatter],
+              });
+            } catch (err) {}
+          });
+        }
+      });
+
+      // send to new chatter
+      if (users.has(newChatter.id)) {
+        users.get(newChatter.id).sockets.forEach((socket) => {
+          try {
+            io.to(socket).emit('added-user-to-group', {
+              chat,
+              chatters: chat.Users,
+            });
+          } catch (err) {}
+        });
+      }
+    });
+
+    socket.on('leave-current-chat', async (data) => {
+      const { chatId, userId, currentUserId, notifyUsers } = data;
+      notifyUsers.forEach((id) => {
+        if (users.has(id)) {
+          users.get(id).sockets.forEach((socket) => {
+            try {
+              io.to(socket).emit('remove-user-from-chat', {
+                chatId,
+                userId,
+                currentUserId,
+              });
+            } catch (err) {}
+          });
+        }
+      });
+    });
+
+    socket.on('delete-chat', async (data) => {
+      const { chatId, notifyUsers } = data;
+
+      notifyUsers.forEach((id) => {
+        if (users.has(id)) {
+          users.get(id).sockets.forEach((socket) => {
+            try {
+              io.to(socket).emit('delete-chat', parseInt(chatId));
+            } catch (err) {}
+          });
+        }
+      });
+    });
+
     socket.on('disconnect', async () => {
       console.log('socket.on disconnect');
 
