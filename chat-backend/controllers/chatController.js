@@ -218,11 +218,11 @@ exports.leaveCurrentChat = async (req, res) => {
       include: [{ model: User }],
     });
 
-    if (chat.Users.lengh === 2) {
+    if (chat.Users.length === 2) {
       return res.status(403).json({ message: 'You cannot leave this chat!' });
     }
 
-    if (chat.Users.lengh === 3) {
+    if (chat.Users.length === 3) {
       chat.type = 'dual';
       chat.save();
     }

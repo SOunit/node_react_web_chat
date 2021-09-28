@@ -27,8 +27,8 @@ const initialState = {
 
 const chatReducer = (state = initialState, action) => {
   const { type, payload } = action;
-  console.log(type);
-  console.log(payload);
+  console.log('chatReducer type', type);
+  console.log('chatReducer payload', payload);
 
   switch (type) {
     case FETCH_CHATS: {
@@ -308,9 +308,11 @@ const chatReducer = (state = initialState, action) => {
 
     case LEAVE_CURRENT_CHAT: {
       const { chatId, userId, currentUserId } = payload;
+      console.log('reducer LEAVE_CURRENT_CHAT');
 
       if (userId === currentUserId) {
-        // delete chat if current user is leaving the chat
+        // login user is leaving
+        console.log('login user is leaving');
         const chatsCopy = state.chats.filter((chat) => chat.id !== chatId);
         return {
           ...state,
@@ -318,19 +320,30 @@ const chatReducer = (state = initialState, action) => {
           currentChat: state.currentChat.id === chatId ? {} : state.currentChat,
         };
       } else {
+        // other user is leaving
         const chatsCopy = state.chats.map((chat) => {
           if (chatId === chat.id) {
+            const filteredUsers = chat.Users.filter(
+              (user) => user.id !== userId
+            );
+            // update Users in chat object
             return {
               ...chat,
-              Users: chat.Users.filter((user) => user.id !== userId),
+              Users: filteredUsers,
             };
           }
           return chat;
         });
+
+        // update current chat
         let currentChatCopy = { ...state.currentChat };
         if (currentChatCopy.id === chatId) {
-          currentChatCopy.Users.filter((user) => user.id !== userId);
+          currentChatCopy = {
+            ...currentChatCopy,
+            Users: currentChatCopy.Users.filter((user) => user.id !== userId),
+          };
         }
+
         return { ...state, chats: chatsCopy, currentChat: currentChatCopy };
       }
     }
