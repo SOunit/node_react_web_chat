@@ -75,6 +75,16 @@ const ChatService = {
         throw err;
       });
   },
+
+  deleteCurrentChat: (chatId) => {
+    return API.delete(`/chats/${chatId}`)
+      .then(({ data }) => {
+        return data;
+      })
+      .catch((err) => {
+        throw err;
+      });
+  },
 };
 
 export default ChatService;

@@ -215,6 +215,20 @@ const socketServer = (server) => {
       });
     });
 
+    socket.on('delete-chat', async (data) => {
+      const { chatId, notifyUsers } = data;
+
+      notifyUsers.forEach((id) => {
+        if (users.has(id)) {
+          users.get(id).sockets.forEach((socket) => {
+            try {
+              io.to(socket).emit('delete-chat', parseInt(chatId));
+            } catch (err) {}
+          });
+        }
+      });
+    });
+
     socket.on('disconnect', async () => {
       console.log('socket.on disconnect');
 

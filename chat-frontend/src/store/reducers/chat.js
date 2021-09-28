@@ -12,6 +12,7 @@ import {
   CREATE_CHAT,
   ADD_USER_TO_GROUP,
   LEAVE_CURRENT_CHAT,
+  DELETE_CURRENT_CHAT,
 } from '../actions/chat';
 
 const initialState = {
@@ -326,12 +327,20 @@ const chatReducer = (state = initialState, action) => {
           }
           return chat;
         });
-        let currentChatCopy = [...state.currentChat];
+        let currentChatCopy = { ...state.currentChat };
         if (currentChatCopy.id === chatId) {
           currentChatCopy.Users.filter((user) => user.id !== userId);
         }
         return { ...state, chats: chatsCopy, currentChat: currentChatCopy };
       }
+    }
+
+    case DELETE_CURRENT_CHAT: {
+      return {
+        ...state,
+        chats: state.chats.filter((chat) => chat.id !== payload),
+        currentChat: state.currentChat.id === payload ? {} : state.currentChat,
+      };
     }
 
     default: {

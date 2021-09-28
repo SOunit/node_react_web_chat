@@ -189,11 +189,21 @@ exports.addUserToGroup = async (req, res) => {
 };
 
 exports.deleteChat = async (req, res) => {
+  const { id } = req.params;
+
   try {
-    await Chat.destroy({ where: { id: req.params.id } });
+    const chat = await Chat.findOne({
+      where: { id },
+      include: [{ model: User }],
+    });
+
+    const notifyUsers = chat.Users.map((user) => user.id);
+
+    await chat.destroy();
+
     return res.json({
-      status: 'Success',
-      message: 'Chat deleted successfully',
+      chatId: id,
+      notifyUsers,
     });
   } catch (err) {
     return res.status(500).json({ status: 'Error', message: err.message });
